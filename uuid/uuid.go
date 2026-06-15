@@ -45,6 +45,7 @@ type UUID [16]byte
 func Parse(s string) (UUID, error) {
 	var u UUID
 	err := u.UnmarshalText([]byte(s))
+
 	return u, err
 }
 
@@ -56,6 +57,7 @@ func MustParse(s string) UUID {
 	if err != nil {
 		panic(err)
 	}
+
 	return u
 }
 
@@ -94,17 +96,16 @@ func Max() UUID {
 // It uses the lowercase hex-and-dash representation defined in RFC 9562.
 func (u UUID) String() string {
 	b, _ := u.MarshalText()
+
 	return string(b)
 }
 
-// MarshalText implements the [encoding.TextMarshaler] interface.
-// The encoding is the same as returned by [UUID.String]
+// The encoding is the same as returned by [UUID.String].
 func (u UUID) MarshalText() ([]byte, error) {
 	return u.AppendText(make([]byte, 0, 36))
 }
 
-// AppendText implements the [encoding.TextAppender] interface.
-// The encoding is the same as returned by [UUID.String]
+// The encoding is the same as returned by [UUID.String].
 func (u UUID) AppendText(b []byte) ([]byte, error) {
 	off := len(b)
 	b = append(b, "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"...)
@@ -114,6 +115,7 @@ func (u UUID) AppendText(b []byte) ([]byte, error) {
 	hex.Encode(dst[14:18], u[6:8])
 	hex.Encode(dst[19:23], u[8:10])
 	hex.Encode(dst[24:36], u[10:16])
+
 	return b, nil
 }
 
@@ -123,6 +125,7 @@ var errInvalid = errors.New("invalid uuid")
 // The UUID is expected in a form accepted by [Parse].
 func (u *UUID) UnmarshalText(b []byte) error {
 	var dst UUID
+
 	switch len(b) {
 	case len("urn:uuid:") + 36:
 		// urn:uuid:00000000-0000-0000-0000-000000000000
@@ -136,32 +139,42 @@ func (u *UUID) UnmarshalText(b []byte) error {
 		if _, err := hex.Decode(dst[:], b); err != nil {
 			return errInvalid
 		}
+
 		*u = dst
+
 		return nil
 	}
 	// 00000000-0000-0000-0000-000000000000
 	if len(b) != 36 {
 		return errInvalid
 	}
+
 	if b[8] != '-' || b[13] != '-' || b[18] != '-' || b[23] != '-' {
 		return errInvalid
 	}
+
 	if _, err := hex.Decode(dst[0:4], b[0:8]); err != nil {
 		return errInvalid
 	}
+
 	if _, err := hex.Decode(dst[4:6], b[9:13]); err != nil {
 		return errInvalid
 	}
+
 	if _, err := hex.Decode(dst[6:8], b[14:18]); err != nil {
 		return errInvalid
 	}
+
 	if _, err := hex.Decode(dst[8:10], b[19:23]); err != nil {
 		return errInvalid
 	}
+
 	if _, err := hex.Decode(dst[10:16], b[24:36]); err != nil {
 		return errInvalid
 	}
+
 	*u = dst
+
 	return nil
 }
 
@@ -180,6 +193,7 @@ func (u UUID) Compare(v UUID) int {
 			return c
 		}
 	}
+
 	return 0
 }
 
@@ -188,9 +202,11 @@ func (u UUID) Compare(v UUID) int {
 // Version 4 UUIDs contain 122 bits of random data.
 func NewV4() UUID {
 	var u UUID
+
 	rand.Read(u[:])
 	u.setVersion(4)
 	u.setVariant(0b10)
+
 	return u
 }
 
@@ -256,6 +272,7 @@ func NewV7() UUID {
 	hibits := ((timestamp << 4) & 0xffff_ffff_ffff_0000) | (timestamp & 0x0ffff)
 
 	var u UUID
+
 	binary.BigEndian.PutUint64(u[0:8], hibits)
 	rand.Read(u[8:])
 	u.setVersion(7)

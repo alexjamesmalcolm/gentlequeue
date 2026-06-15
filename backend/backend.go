@@ -9,20 +9,24 @@ import (
 
 type Importance uint16
 
-type ItemID uuid.UUID
-type Item struct {
-	ID          ItemID
-	Title       string
-	Description string
-	Importance  Importance
-}
+type (
+	ItemID uuid.UUID
+	Item   struct {
+		ID          ItemID
+		Title       string
+		Description string
+		Importance  Importance
+	}
+)
 
-type CompletionEventID uuid.UUID
-type CompletionEvent struct {
-	ID     CompletionEventID
-	ItemID ItemID
-	Time   time.Time
-}
+type (
+	CompletionEventID uuid.UUID
+	CompletionEvent   struct {
+		ID     CompletionEventID
+		ItemID ItemID
+		Time   time.Time
+	}
+)
 
 type Backend interface {
 	GetAllItems(context.Context) ([]Item, error)
